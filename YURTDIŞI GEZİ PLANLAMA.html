@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kullanıcı Paneli | Yurtdışı Gezi Planlama</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+        }
+
+        /* GİRİŞ EKRANI */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        }
+
+        .login-box {
+            background: #fff;
+            padding: 25px 30px;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+            width: 320px;
+            max-width: 90%;
+        }
+
+        .login-box h2 {
+            margin-top: 0;
+            text-align: center;
+            color: #1565c0;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #c5d3e8;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .login-box input:focus {
+            border-color: #42a5f5;
+            box-shadow: 0 0 0 2px rgba(66,165,245,0.25);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 10px;
+            background: #1e88e5;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .login-btn:hover {
+            background: #1565c0;
+        }
+
+        .login-info {
+            font-size: 12px;
+            color: #555;
+            margin-top: 8px;
+        }
+
+        .login-error {
+            color: #dc3545;
+            font-size: 13px;
+            min-height: 18px;
+        }
+
+        /* UYGULAMA GÖRÜNÜMÜ */
+        .app-root {
+            display: flex;
+        }
+
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #1e88e5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        .logo {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 0.5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #bbdefb;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #ffffff;
+            padding-top: 70px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.08);
+            height: 100vh;
+            box-sizing: border-box;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            padding: 12px 18px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #1f2a3c;
+        }
+
+        .sidebar li:hover {
+            background-color: #e3f2fd;
+        }
+
+        .sidebar li.active {
+            background-color: #bbdefb;
+            font-weight: bold;
+        }
+
+        .sidebar li.logout {
+            color: #dc3545;
+        }
+
+        .content {
+            margin-left: 220px;
+            padding: 80px 30px 30px;
+            width: calc(100% - 220px);
+            box-sizing: border-box;
+        }
+
+        .content h2 {
+            color: #1f2a3c;
+        }
+
+        /* ÜLKE KARTLARI */
+        .country-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #ffffff;
+            padding: 12px 16px;
+            margin-top: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: 0.25s;
+            color: #1f2a3c;
+        }
+        .country-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+        }
+
+        .country-thumb {
+            width: 72px;
+            height: 72px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .country-text h3 {
+            margin: 0 0 4px;
+        }
+
+        .country-text p {
+            margin: 0;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .country-content {
+            margin-top: 12px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .country-section {
+            background-color: #fdfdfd;
+            padding: 15px 20px;
+            margin-top: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #64b5f6;
+            box-shadow: 0 0 8px rgba(0,0,0,0.05);
+        }
+
+        .otel-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .otel-table th, .otel-table td {
+            border: 1px solid #d1d9e6;
+            padding: 8px;
+        }
+        .otel-table th {
+            background: #e3f2fd;
+        }
+
+        .map-link {
+            color: #1565c0;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .map-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Gezilecek yer fotoğrafları içeride de dursun istersen diye bıraktım */
+        .places-photos {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .place-photo-card {
+            flex: 1;
+            min-width: 180px;
+            max-width: 220px;
+            background: #f5f8ff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .place-photo-card img {
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .place-photo-card p {
+            margin: 6px 10px 10px;
+            font-size: 13px;
+            text-align: center;
+            color: #1f2a3c;
+        }
+
+        .favorite-btn {
+            background-color: #1e88e5;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 14px;
+        }
+        .favorite-btn:hover {
+            background-color: #1565c0;
+            transform: translateY(-1px);
+        }
+        .favorite-btn.favorited {
+            background-color: #2e7d32;
+        }
+        .favorite-btn.favorited:hover {
+            background-color: #1b5e20;
+        }
+
+        .view-container {
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-top: 20px;
+            display: none;
+        }
+
+        #favoritesList, #settingsFavoritesList {
+            list-style: none;
+            padding: 0;
+        }
+
+        #favoritesList li, #settingsFavoritesList li {
+            background-color: #f8f9fa;
+            border: 1px solid #e2e6f0;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .remove-fav-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        #settingsView input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #c5d3e8;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        #settingsView input:focus {
+            border-color: #42a5f5;
+            box-shadow: 0 0 0 2px rgba(66,165,245,0.25);
+        }
+
+        .primary-btn {
+            background-color: #1e88e5;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .primary-btn:hover {
+            background-color: #1565c0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<!-- GİRİŞ EKRANI -->
+<div id="loginView" class="login-container hidden">
+    <div class="login-box">
+        <h2>Yurtdışı Gezi Planlama Giriş</h2>
+        <input type="text" id="loginUser" placeholder="Kullanıcı adı veya e-posta">
+        <input type="password" id="loginPass" placeholder="Şifre">
+        <div id="loginError" class="login-error"></div>
+        <button id="loginBtn" class="login-btn">Giriş Yap</button>
+        <p class="login-info">
+            Örnek kullanıcılar: <br>
+            Misafir Kullanıcı / misafir@example.com – 123456 <br>
+            Rüveyda Kama / ruveyda@example.com – ruveyda123 <br>
+            Sena Lara Özen / sena@example.com – sena123
+        </p>
+    </div>
+</div>
+
+<!-- UYGULAMA (Misafir ile otomatik açılacak) -->
+<div id="appView" class="app-root hidden">
+    <header class="topbar">
+        <h1 class="logo">Yurtdışı Gezi Planlama</h1>
+        <div class="user-info">
+            <div class="avatar">👤</div>
+            <span id="userName"></span>
+        </div>
+    </header>
+
+    <aside class="sidebar">
+        <ul>
+            <li id="homeLink" class="active">🏠 Ana Sayfa</li>
+            <li id="favoritesLink">⭐ Favorilerim</li>
+            <li id="settingsLink">⚙ Ayarlar</li>
+            <li id="loginPanelLink">🔐 Kullanıcı Girişi</li>
+            <li id="logoutBtn" class="logout">🚪 Çıkış</li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <h2>Hoş Geldin, <span id="userName2"></span> 👋</h2>
+
+        <!-- ANA SAYFA -->
+        <div id="homeView">
+            <!-- İTALYA -->
+            <div class="country-card" onclick="toggleCountry('italy')">
+                <img class="country-thumb"
+                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/The_Colosseum.jpg/480px-The_Colosseum.jpg"
+                     alt="İtalya - Roma Kolezyumu">
+                <div class="country-text">
+                    <h3>🇮🇹 İtalya</h3>
+                    <p>Tarihi yapılar ve Akdeniz mutfağıyla ünlü.</p>
+                </div>
+            </div>
+
+            <div id="italy" class="country-content">
+                <div class="country-section">
+                    <h2>Genel Bilgi</h2>
+                    <p>İtalya, tarihi yapıları, sanat eserleri ve Akdeniz mutfağıyla dünyanın en çok ziyaret edilen ülkelerindendir.</p>
+                </div>
+                <div class="country-section">
+                    <h2>Meşhur Yemekler</h2>
+                    <ul>
+                        <li>🍕 Pizza</li>
+                        <li>🍝 Lazanya</li>
+                        <li>🍨 Gelato</li>
+                    </ul>
+                </div>
+                <div class="country-section">
+                    <h2>Gezilecek Yerler (GPS ile)</h2>
+                    <ul>
+                        <li><a class="map-link" target="_blank" href="https://www.google.com/maps?q=41.8902,12.4922">📍 Roma Kolezyumu</a></li>
+                        <li><a class="map-link" target="_blank" href="https://www.google.com/maps?q=43.7229,10.3966">📍 Pisa Kulesi</a></li>
+                        <li><a class="map-link" target="_blank" href="https://www.google.com/maps?q=45.4370,12.3358">📍 Venedik Büyük Kanal</a></li>
+                    </ul>
+                </div>
+                <div class="country-section">
+                    <h2>Gezilecek Yer Fotoğrafı</h2>
+                    <div class="places-photos">
+                        <div class="place-photo-card">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/The_Colosseum.jpg/960px-The_Colosseum.jpg"
+                                 alt="Roma Kolezyumu - Roma">
+                            <p>Roma Kolezyumu, Roma</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="country-section">
+                    <h2>Otel Fiyatları</h2>
+                    <table class="otel-table">
+                        <tr><th>Şehir</th><th>Ortalama Fiyat</th><th>Açıklama</th></tr>
+                        <tr><td>Roma</td><td>60–110 EUR</td><td>Merkezde 3 yıldızlı oteller</td></tr>
+                        <tr><td>Venedik</td><td>70–120 EUR</td><td>Kanal çevresi butik oteller</td></tr>
+                    </table>
+                </div>
+                <div class="country-section">
+                    <h2>Kısa Değerlendirme</h2>
+                    <p>İtalya; sanat, yemek ve tarih açısından eşsiz bir deneyim sunar.</p>
+                </div>
+                <button 
+                    id="favBtn-italya" 
+                    data-country="İtalya" 
+                    onclick="toggleFavorite('İtalya')" 
+                    class="favorite-btn"
+                >
+                    ⭐ Favorilere Ekle
+                </button>
+            </div>
+
+            <!-- FRANSA -->
+            <div class="country-card" onclick="toggleCountry('france')">
+                <img class="country-thumb"
+                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Tour_Eiffel_Wikimedia_Commons.jpg/360px-Tour_Eiffel_Wikimedia_Commons.jpg"
+                     alt="Fransa - Eiffel Kulesi">
+                <div class="country-text">
+                    <h3>🇫🇷 Fransa</h3>
+                    <p>Romantik şehirler ve gurme mutfağı.</p>
+                </div>
+            </div>
+
+            <div id="france" class="country-content">
+                <div class="country-section">
+                    <h2>Genel Bilgi</h2>
+                    <p>Fransa; romantik şehirleri, ünlü müzeleri ve gurme mutfağıyla turistlerin gözdesidir.</p>
+                </div>
+                <div class="country-section">
+                    <h2>Meşhur Yemekler</h2>
+                    <ul>
+                        <li>🥐 Kruvasan</li>
+                        <li>🧀 Peynir çeşitleri</li>
+                        <li>🥖 Baget ekmeği</li>
+                    </ul>
+                </div>
+                <div class="country-section">
+                    <h2>Gezilecek Yerler (GPS ile)</h2>
+                    <ul>
+                        <li><a class="map-link" target="_blank" href="https://www.google.com/maps?q=48.8584,2.2945">📍 Eiffel Kulesi</a></li>
+                        <li><a class="map-link" target="_blank" href="https://www.google.com/maps?q=48.8606,2.3376">📍 Louvre Müzesi</a></li>
+                        <li><a class="map-link" target="_blank" href="https://www.google.com/maps?q=43.6950,7.2650">📍 Nice Sahilleri</a></li>
+                    </ul>
+                </div>
+                <div class="country-section">
+                    <h2>Gezilecek Yer Fotoğrafı</h2>
+                    <div class="places-photos">
+                        <div class="place-photo-card">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Tour_Eiffel_Wikimedia_Commons.jpg/480px-Tour_Eiffel_Wikimedia_Commons.jpg"
+                                 alt="Eiffel Kulesi - Paris">
+                            <p>Eiffel Kulesi, Paris</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="country-section">
+                    <h2>Otel Fiyatları</h2>
+                    <table class="otel-table">
+                        <tr><th>Şehir</th><th>Ortalama Fiyat</th><th>Açıklama</th></tr>
+                        <tr><td>Paris</td><td>90–170 EUR</td><td>Merkezde butik oteller</td></tr>
+                        <tr><td>Lyon</td><td>70–130 EUR</td><td>Klasik Fransız otelleri</td></tr>
+                    </table>
+                </div>
+                <div class="country-section">
+                    <h2>Kısa Değerlendirme</h2>
+                    <p>Fransa; kültür, sanat ve gastronomi açısından dünyanın en zengin ülkelerindendir.</p>
+                </div>
+                <button 
+                    id="favBtn-fransa" 
+                    data-country="Fransa" 
+                    onclick="toggleFavorite('Fransa')" 
+                    class="favorite-btn"
+                >
+                    ⭐ Favorilere Ekle
+                </button>
+            </div>
+
+            <!-- BALİ -->
+            <div class="country-card" onclick="toggleCountry('bali')">
+                <img class="country-thumb"
+                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Rice_terraces%2C_Bali.jpg/480px-Rice_terraces%2C_Bali.jpg"
+                     alt="Bali - Pirinç Terasları">
+                <div class="country-text">
+                    <h3>🇮🇩 Bali</h3>
+                    <p>Tropik doğa ve ruhani atmosfer.</p>
+                </div>
+            </div>
+
+            <div id="bali" class="country-content">
+                <div class="country-section">
+                    <h2>Genel Bilgi</h2>
+                    <p>Bali; plajları, doğal güzellikleri ve ruhani atmosferiyle ünlü bir tatil adasıdır.</p>
+                </div>
+                <div class="country-section">
+                    <h2>Meşhur Yemekler</h2>
+                    <ul>
+                        <li>Nasi Goreng</li>
+                        <li>Mie Goreng</li>
+                        <li>Ayam Betutu</li>
+                    </ul>
+                </div>
+                <div class="country-section">
+                    <h2>Gezilecek Yerler (GPS ile)</h2>
+                    <ul>
+                        <li><a class="map-link" target="_blank" href="https://www.google.com/maps?q=-8.8296,115.0860">📍 Uluwatu Tapınağı</a></li>
+                        <li><a class="map-link" target="_blank" href="https://www.google.com/maps?q=-8.4350,115.2790">📍 Tegallalang Pirinç Terasları</a></li>
+                        <li><a class="map-link" target="_blank" href="https://www.google.com/maps?q=-8.7179,115.1682">📍 Kuta Plajı</a></li>
+                    </ul>
+                </div>
+                <div class="country-section">
+                    <h2>Gezilecek Yer Fotoğrafı</h2>
+                    <div class="places-photos">
+                        <div class="place-photo-card">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Rice_terraces%2C_Bali.jpg/960px-Rice_terraces%2C_Bali.jpg"
+                                 alt="Tegallalang Pirinç Terasları - Bali">
+                            <p>Tegallalang Pirinç Terasları, Bali</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="country-section">
+                    <h2>Otel Fiyatları</h2>
+                    <table class="otel-table">
+                        <tr><th>Bölge</th><th>Ortalama Fiyat</th><th>Açıklama</th></tr>
+                        <tr><td>Kuta</td><td>25–60 USD</td><td>Sahil kenarı oteller</td></tr>
+                        <tr><td>Ubud</td><td>30–70 USD</td><td>Doğa içinde bungalovlar</td></tr>
+                    </table>
+                </div>
+                <div class="country-section">
+                    <h2>Kısa Değerlendirme</h2>
+                    <p>Bali; doğa, huzur ve deniz tatili arayanların vazgeçilmez rotasıdır.</p>
+                </div>
+                <button 
+                    id="favBtn-bali" 
+                    data-country="Bali" 
+                    onclick="toggleFavorite('Bali')" 
+                    class="favorite-btn"
+                >
+                    ⭐ Favorilere Ekle
+                </button>
+            </div>
+
+            <!-- TAYLAND -->
+            <div class="country-card" onclick="toggleCountry('thailand')">
+                <img class="country-thumb"
+                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Grand_Palace_Bangkok.jpg/480px-Grand_Palace_Bangkok.jpg"
+                     alt="Tayland - Bangkok Büyük Saray">
+                <div class="country-text">
+                    <h3>🇹🇭 Tayland</h3>
+                    <p>Renkli sokaklar ve tropik adalar.</p>
+                </div>
+            </div>
+
+            <div id="thailand" class="country-content">
+                <div class="country-section">
+                    <h2>Genel Bilgi</h2>
+                    <p>Tayland; tropik adaları, altın tapınakları ve sokak yemekleriyle ünlüdür.</p>
+                </div>
+                <div class="country-section">
+                    <h2>Meşhur Yemekler</h2>
+                    <ul>
+                        <li>Pad Thai</li>
+                        <li>Tom Yum Soup</li>
+                        <li>Mango Sticky Rice</li>
+                    </ul>
+                </div>
+                <div class="country-section">
+                    <h2>Gezilecek Yerler (GPS ile)</h2>
+                    <ul>
+                        <li><a class="map-link" target="_blank" href="https://www.google.com/maps?q=7.8960,98.2960">📍 Phuket Adası</a></li>
+                        <li><a class="map-link" target="_blank" href="https://www.google.com/maps?q=13.7500,100.4910">📍 Bangkok Büyük Saray</a></li>
+                        <li><a class="map-link" target="_blank" href="https://www.google.com/maps?q=18.7888,98.9817">📍 Chiang Mai Tapınakları (Wat Phra Singh)</a></li>
+                    </ul>
+                </div>
+                <div class="country-section">
+                    <h2>Gezilecek Yer Fotoğrafı</h2>
+                    <div class="places-photos">
+                        <div class="place-photo-card">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Grand_Palace_Bangkok.jpg/960px-Grand_Palace_Bangkok.jpg"
+                                 alt="Büyük Saray - Bangkok">
+                            <p>Büyük Saray, Bangkok</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="country-section">
+                    <h2>Otel Fiyatları</h2>
+                    <table class="otel-table">
+                        <tr><th>Şehir</th><th>Ortalama Fiyat</th><th>Açıklama</th></tr>
+                        <tr><td>Bangkok</td><td>20–50 USD</td><td>Merkez ekonomik oteller</td></tr>
+                        <tr><td>Phuket</td><td>30–80 USD</td><td>Sahil otelleri</td></tr>
+                    </table>
+                </div>
+                <div class="country-section">
+                    <h2>Kısa Değerlendirme</h2>
+                    <p>Tayland; uygun fiyatlı, renkli ve eğlenceli bir tatil isteyenler için idealdir.</p>
+                </div>
+                <button 
+                    id="favBtn-tayland" 
+                    data-country="Tayland" 
+                    onclick="toggleFavorite('Tayland')" 
+                    class="favorite-btn"
+                >
+                    ⭐ Favorilere Ekle
+                </button>
+            </div>
+        </div>
+
+        <!-- FAVORİLER -->
+        <div id="favoritesView" class="view-container">
+            <h3>⭐ Favori Ülkeleriniz</h3>
+            <ul id="favoritesList">
+                <li>Favori ülkeleriniz yükleniyor...</li>
+            </ul>
+        </div>
+
+        <!-- AYARLAR -->
+        <div id="settingsView" class="view-container">
+            <div id="profileView" class="country-section">
+                <h3>👤 Profil Bilgilerin</h3>
+                <p><strong>Kullanıcı Adı:</strong> <span id="uName"></span></p>
+                <p><strong>Email:</strong> <span id="uMail"></span></p>
+                <button id="changePassBtn" class="primary-btn">Şifre Değiştir</button>
+            </div>
+
+            <div id="passwordView" class="country-section hidden">
+                <h3>🔑 Şifre Değiştir</h3>
+                <input type="password" id="currentPass" placeholder="Mevcut Şifre" required>
+                <input type="password" id="newPass" placeholder="Yeni Şifre" required>
+                <input type="password" id="confirmNewPass" placeholder="Yeni Şifre Tekrar" required>
+                <small id="passError" class="errorBox" style="color: #dc3545;"></small>
+                <button id="saveNewPass" class="primary-btn">Kaydet</button>
+                <button id="cancelChangeBtn" class="primary-btn" style="background-color: #6c757d;">İptal</button>
+            </div>
+
+            <div id="settingsFavorites" class="country-section">
+                <h3>⭐ Favori Ülke Yönetimi</h3>
+                <ul id="settingsFavoritesList">
+                    <li>Favori ülkeleriniz yükleniyor...</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // ---- DEMO kullanıcılar ----
+    const users = [
+        { username: 'Misafir Kullanıcı', email: 'misafir@example.com', password: '123456' },
+        { username: 'Rüveyda Kama', email: 'ruveyda@example.com', password: 'ruveyda123' },
+        { username: 'Sena Lara Özen', email: 'sena@example.com', password: 'sena123' }
+    ];
+
+    let currentUser = null;
+
+    // -------- Favoriler (kullanıcıya göre localStorage) --------
+    function getFavorites() {
+        if (!currentUser) return [];
+        const key = 'ygpFavorites_' + currentUser.username;
+        try {
+            const data = JSON.parse(localStorage.getItem(key) || '[]');
+            return Array.isArray(data) ? data : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveFavorites(favs) {
+        if (!currentUser) return;
+        const key = 'ygpFavorites_' + currentUser.username;
+        localStorage.setItem(key, JSON.stringify(favs));
+        renderFavorites();
+        updateFavoriteButtons();
+    }
+
+    // -------- GİRİŞ / ÇIKIŞ --------
+    function showLogin() {
+        document.getElementById('loginView').classList.remove('hidden');
+        document.getElementById('appView').classList.add('hidden');
+    }
+
+    function showApp() {
+        document.getElementById('loginView').classList.add('hidden');
+        document.getElementById('appView').classList.remove('hidden');
+        renderUser();
+        renderFavorites();
+        updateFavoriteButtons();
+        showView('home');
+    }
+
+    // -------- UI Fonksiyonları --------
+    function toggleCountry(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function toggleFavorite(name) {
+        const favs = getFavorites();
+        const index = favs.indexOf(name);
+        if (index === -1) favs.push(name);
+        else favs.splice(index, 1);
+        saveFavorites(favs);
+    }
+
+    function removeFavorite(name) {
+        const favs = getFavorites().filter(c => c !== name);
+        saveFavorites(favs);
+    }
+
+    function renderUser() {
+        if (!currentUser) return;
+        document.getElementById('userName').textContent = currentUser.username;
+        document.getElementById('userName2').textContent = currentUser.username;
+        document.getElementById('uName').textContent = currentUser.username;
+        document.getElementById('uMail').textContent = currentUser.email;
+    }
+
+    function renderFavorites() {
+        const favoritesList = document.getElementById('favoritesList');
+        const settingsFavoritesList = document.getElementById('settingsFavoritesList');
+        const favs = getFavorites();
+
+        favoritesList.innerHTML = '';
+        settingsFavoritesList.innerHTML = '';
+
+        if (!favs.length) {
+            favoritesList.innerHTML = '<li>Henüz favori ülkeniz yok.</li>';
+            settingsFavoritesList.innerHTML = '<li>Henüz favori ülkeniz yok.</li>';
+            return;
+        }
+
+        favs.forEach(country => {
+            const li1 = document.createElement('li');
+            li1.textContent = country;
+            favoritesList.appendChild(li1);
+
+            const li2 = document.createElement('li');
+            const span = document.createElement('span');
+            span.textContent = country;
+
+            const btn = document.createElement('button');
+            btn.className = 'remove-fav-btn';
+            btn.textContent = 'Kaldır';
+            btn.addEventListener('click', () => removeFavorite(country));
+
+            li2.appendChild(span);
+            li2.appendChild(btn);
+            settingsFavoritesList.appendChild(li2);
+        });
+    }
+
+    function updateFavoriteButtons() {
+        const favs = getFavorites();
+        document.querySelectorAll('.favorite-btn').forEach(btn => {
+            const cName = btn.dataset.country;
+            if (favs.includes(cName)) {
+                btn.classList.add('favorited');
+                btn.textContent = '✅ Favorilerde';
+            } else {
+                btn.classList.remove('favorited');
+                btn.textContent = '⭐ Favorilere Ekle';
+            }
+        });
+    }
+
+    function showView(name) {
+        const homeView = document.getElementById('homeView');
+        const favoritesView = document.getElementById('favoritesView');
+        const settingsView = document.getElementById('settingsView');
+
+        homeView.style.display = 'none';
+        favoritesView.style.display = 'none';
+        settingsView.style.display = 'none';
+
+        document.getElementById('homeLink').classList.remove('active');
+        document.getElementById('favoritesLink').classList.remove('active');
+        document.getElementById('settingsLink').classList.remove('active');
+
+        if (name === 'home') {
+            homeView.style.display = 'block';
+            document.getElementById('homeLink').classList.add('active');
+        } else if (name === 'favorites') {
+            favoritesView.style.display = 'block';
+            document.getElementById('favoritesLink').classList.add('active');
+        } else {
+            settingsView.style.display = 'block';
+            document.getElementById('settingsLink').classList.add('active');
+        }
+    }
+
+    // -------- Eventler --------
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginBtn = document.getElementById('loginBtn');
+        const loginUser = document.getElementById('loginUser');
+        const loginPass = document.getElementById('loginPass');
+        const loginError = document.getElementById('loginError');
+
+        // Manuel kullanıcı girişi
+        loginBtn.addEventListener('click', () => {
+            const u = loginUser.value.trim();
+            const p = loginPass.value.trim();
+
+            const found = users.find(user =>
+                (user.username === u || user.email === u) && user.password === p
+            );
+
+            if (found) {
+                currentUser = found;
+                loginError.textContent = '';
+                loginUser.value = '';
+                loginPass.value = '';
+                showApp();
+            } else {
+                loginError.textContent = 'Kullanıcı adı/email veya şifre hatalı.';
+            }
+        });
+
+        // Sol menü: sayfa görünüşleri
+        document.getElementById('homeLink').addEventListener('click', () => showView('home'));
+        document.getElementById('favoritesLink').addEventListener('click', () => showView('favorites'));
+        document.getElementById('settingsLink').addEventListener('click', () => showView('settings'));
+
+        // Sol menü: Kullanıcı girişi sekmesi (Misafirden çıkıp giriş ekranına dönmek için)
+        document.getElementById('loginPanelLink').addEventListener('click', () => {
+            document.getElementById('appView').classList.add('hidden');
+            document.getElementById('loginView').classList.remove('hidden');
+        });
+
+        // Çıkış
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            const c = confirm('Çıkış yapmak istediğine emin misin?');
+            if (c) {
+                currentUser = null;
+                showLogin();
+            }
+        });
+
+        // Şifre değişimi
+        const changePassBtn = document.getElementById('changePassBtn');
+        const passwordView = document.getElementById('passwordView');
+        const profileView = document.getElementById('profileView');
+        const saveNewPassBtn = document.getElementById('saveNewPass');
+        const cancelChangeBtn = document.getElementById('cancelChangeBtn');
+        const passError = document.getElementById('passError');
+
+        const currentPassInput = document.getElementById('currentPass');
+        const newPassInput = document.getElementById('newPass');
+        const confirmNewPassInput = document.getElementById('confirmNewPass');
+
+        changePassBtn.addEventListener('click', () => {
+            passwordView.classList.remove('hidden');
+            profileView.classList.add('hidden');
+        });
+
+        cancelChangeBtn.addEventListener('click', () => {
+            passwordView.classList.add('hidden');
+            profileView.classList.remove('hidden');
+            passError.textContent = '';
+            currentPassInput.value = '';
+            newPassInput.value = '';
+            confirmNewPassInput.value = '';
+        });
+
+        saveNewPassBtn.addEventListener('click', () => {
+            passError.textContent = '';
+            if (!currentUser) {
+                passError.textContent = 'Oturum bulunamadı.';
+                return;
+            }
+
+            const currentPass = currentPassInput.value.trim();
+            const newPass = newPassInput.value.trim();
+            const confirmPass = confirmNewPassInput.value.trim();
+
+            if (currentPass !== currentUser.password) {
+                passError.textContent = 'Mevcut şifre yanlış.';
+                return;
+            }
+
+            if (newPass.length < 6) {
+                passError.textContent = 'Yeni şifre en az 6 karakter olmalı.';
+                return;
+            }
+
+            if (newPass !== confirmPass) {
+                passError.textContent = 'Yeni şifreler uyuşmuyor.';
+                return;
+            }
+
+            currentUser.password = newPass;
+            alert('Şifre başarıyla güncellendi. (Demo olduğu için sayfayı yenilersen eski haline döner)');
+            cancelChangeBtn.click();
+        });
+
+        // 📌 SAYFA AÇILIR AÇILMAZ OTOMATİK MİSAFİR GİRİŞİ
+        currentUser = users[0]; // Misafir Kullanıcı
+        showApp();
+    });
+
+    // HTML'deki onclick için global yap
+    window.toggleCountry = toggleCountry;
+    window.toggleFavorite = toggleFavorite;
+</script>
+
+</body>
+</html>
